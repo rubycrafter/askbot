@@ -17,8 +17,9 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  #config.vm.box = "puppetlabs/centos-7.2-64-puppet"
+  #config.vm.box = "centos/7"
   config.vm.box = "genebean/centos-7-puppet"
+
   #config.vm.box_version = "1.0.1"
 
   # Disable automatic box update checking. If you disable this, then
@@ -79,14 +80,10 @@ Vagrant.configure(2) do |config|
   #   sudo apt-get update
   #   sudo apt-get install -y apache2
   # SHELL
-  config.vm.provision :shell do |shell|
-    shell.inline = "mkdir -p /etc/puppet/modules;
-                    puppet module install puppetlabs/mysql;"
-  end
+  #config.vm.provision :shell, path: "install-puppet.sh"
+  config.vm.provision :shell, path: 'install-puppet-modules.sh'
 
-  config.vm.provision "puppet" do |puppet|
-    puppet.manifests_path = "manifests"
-    puppet.manifest_file = "site.pp"
+  config.vm.provision :puppet do |puppet|
     puppet.facter = {
       "inc_file_path" => options["inc_file_path"],
       "tz"            => options["tz"],
