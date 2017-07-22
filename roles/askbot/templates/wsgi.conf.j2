@@ -1,0 +1,26 @@
+# Possible values include: debug, info, notice, warn, error, crit,
+# alert, emerg.
+LogLevel warn
+
+NameVirtualHost *:80
+
+<VirtualHost *:80>
+ServerName {{ app_vhost }}
+
+ErrorLog {{ log_dir }}/{{ app_name }}_error.log
+CustomLog {{ log_dir }}/{{ app_name }}.log combined
+
+Alias /static {{ app_dir }}/static    
+<Directory {{ app_dir }}/static>
+  Order allow,deny
+  Allow from all
+</Directory>
+
+Alias /upfiles {{ app_dir }}/upfiles
+<Directory {{ app_dir }}/upfiles>
+  Order allow,deny
+  Allow from all
+</Directory>
+    
+WSGIScriptAlias / {{ app_wsgi_path }}
+</VirtualHost>

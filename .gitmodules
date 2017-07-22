@@ -1,0 +1,3 @@
+[submodule "ansible-django"]
+	path = ansible-django
+	url = git@github.com:rubycrafter/ansible-django.git

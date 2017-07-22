@@ -1,0 +1,61 @@
+import sys
+import site
+import os
+import os.path as op
+
+##############################################################################
+# Configuration parameters to be overridden during deployment
+
+#this is the path to the virtualenv python site-package dir
+vepath = "{{ app_venv }}"
+
+
+# Configure proxy
+os.environ['http_proxy'] = '{{ http_proxy }}'
+os.environ['https_proxy'] = '{{ https_proxy }}'
+
+
+# Very ugly hack to hide pycurl and fallback to urllib2 which will accept insecure SSL OpenIDs
+try:
+    import pycurl
+    sys.modules['pycurl'] = None
+except ImportError:
+    pass
+
+
+##############################################################################
+# mod_wsgi virtualenv setup as documented at 
+#   http://code.google.com/p/modwsgi/wiki/VirtualEnvironments
+
+#!TODO: remove hard-coded python version
+ALLDIRS = ["{{ app_venv }}", op.join(vepath, 'lib/python2.6/site-packages')]
+
+# Remember original sys.path.
+prev_sys_path = list(sys.path)
+
+# Add each new site-packages directory.
+for directory in ALLDIRS:
+    site.addsitedir(directory)
+
+# Reorder sys.path so new directories at the front.
+new_sys_path = []
+for item in list(sys.path):
+    if item not in prev_sys_path:
+        new_sys_path.append(item)
+        sys.path.remove(item)
+sys.path[:0] = new_sys_path
+
+
+##############################################################################
+# Bootstrap wsgi application
+
+os.environ['DJANGO_SETTINGS_MODULE'] = '{{ app_package }}.settings'
+
+#!TODO: This recipe depends on the Django version.  Verify that PIMMS needs 
+#    Django 1.3 then tidy up
+try:
+    from django.core.wsgi import get_wsgi_application
+    application = get_wsgi_application()
+except ImportError:
+    from django.core.handlers.wsgi import WSGIHandler
+    application = WSGIHandler()

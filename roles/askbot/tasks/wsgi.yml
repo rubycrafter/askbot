@@ -1,0 +1,12 @@
+---
+- name: install wsgi.py
+  template: src=wsgi.py.j2 dest={{ app_wsgi_path }} owner=apache mode=0744
+  notify: restart httpd
+
+- name: install apache wsgi.conf
+  template: src=wsgi.conf.j2 dest={{ app_wsgi_conf_path }}
+  notify: restart httpd
+    
+- name: create logdir
+  file: dest={{ log_dir }} owner=apache
+  notify: restart httpd

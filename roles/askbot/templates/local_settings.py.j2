@@ -1,0 +1,39 @@
+##############################################################################
+# Local settings for askbot
+
+def init(settings):
+    settings['DATABASES']['default']['HOST'] = '127.0.0.1'
+    settings['STATIC_URL'] = '/static/'
+    settings['ADMIN_MEDIA_PREFIX'] = settings['STATIC_URL'] + 'admin/'
+
+    #outgoing mail server settings
+    SERVER_EMAIL = "{{ app_email }}"
+    DEFAULT_FROM_EMAIL = "{{ app_email }}"
+    #EMAIL_HOST_USER = ''
+    #EMAIL_HOST_PASSWORD = ''
+    settings['EMAIL_SUBJECT_PREFIX'] = '[esgf-askbot] '
+    settings['EMAIL_HOST'] = 'localhost'
+    settings['EMAIL_PORT'] = 25
+
+    settings['CACHES'] = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': '127.0.0.1:11211',
+            'KEY_PREFIX': 'askbot'
+            }
+        }
+    del settings['CACHE_BACKEND']
+
+    settings['MEDIA_ROOT'] = '{{ app_dir }}/upfiles'
+    settings['MEDIA_URL'] = '/upfiles/'
+
+    settings['CACHE_PREFIX'] = '{{ app_name }}'
+
+{% if debug_email %}
+    settings['EMAIL_BACKEND'] = 'django.core.mail.backends.filebased.EmailBackend'
+    settings['EMAIL_FILE_PATH'] = '{{ app_venv }}/log/messages'
+{% else %}
+    # Email debug is disabled
+{% endif %}
+
+    settings['DEBUG'] = False    

@@ -1,0 +1,27 @@
+---
+- name: install gcc, required for askbot dependencies
+  become: yes
+  yum: state=present name={{ item }}
+  with_items:
+  - gcc
+  - zlib-devel
+  - libjpeg-devel
+
+- name: install python-memcached into askbot virtualenv
+  pip: name=python-memcached virtualenv={{ app_venv }}
+
+# For some reason this dependency needs to be installed first
+- name: install askbot prerequisite setuptools-hg into virtualenv
+  pip: name=setuptools-hg  virtualenv={{ app_venv }}
+
+- name: clone git repo
+  git: repo=https://github.com/ASKBOT/askbot-devel.git dest=/home/vagrant/askbot-src force=yes
+
+- name: create askbot http log directory
+  file: dest={{ app_venv }}/log owner=vagrant state=directory
+
+- name: install requirements
+  pip: requirements={{ home }}/askbot-src/askbot_requirements.txt  virtualenv={{ app_venv }}
+
+- name: install askbot
+  command: "source {{ app_venv }}/bin/activate ; {{ home }}/askbot-src/setup.py install"
